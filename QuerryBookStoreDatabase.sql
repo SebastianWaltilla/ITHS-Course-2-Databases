@@ -4,23 +4,23 @@ create view kvitto
 SELECT 
 	[Kvitto Nr / Order ID], 
 	[Kund namn], [Person nr], 
-	[Summa Pris bok/böcker], 
-	[Summa vikt bok/Böcker], 
+	[Summa Pris bok/bÃ¶cker], 
+	[Summa vikt bok/BÃ¶cker], 
 	Fraktkostnad, 
-	[Summa Pris bok/böcker] + CAST(Fraktkostnad AS int) AS [Summa frakt och varor]
+	[Summa Pris bok/bÃ¶cker] + CAST(Fraktkostnad AS int) AS [Summa frakt och varor]
 FROM     
 (
 	SELECT 
 		[Kvitto Nr / Order ID], 
 		[Kund namn], 
 		[Person nr], 
-		[Summa Pris bok/böcker], 
-		[Summa vikt bok/Böcker], 
+		[Summa Pris bok/bÃ¶cker], 
+		[Summa vikt bok/BÃ¶cker], 
             CASE 
-			WHEN [Summa vikt bok/Böcker] < 250 THEN '20' 
-			WHEN [Summa vikt bok/Böcker] < 500 THEN '40' 
-			WHEN [Summa vikt bok/Böcker] < 1000 THEN '80' 
-			WHEN [Summa vikt bok/Böcker] < 3000 THEN '140' 
+			WHEN [Summa vikt bok/BÃ¶cker] < 250 THEN '20' 
+			WHEN [Summa vikt bok/BÃ¶cker] < 500 THEN '40' 
+			WHEN [Summa vikt bok/BÃ¶cker] < 1000 THEN '80' 
+			WHEN [Summa vikt bok/BÃ¶cker] < 3000 THEN '140' 
 			ELSE '300' 
 			END AS Fraktkostnad
 		FROM      
@@ -29,10 +29,10 @@ FROM
 			O.ID AS [Kvitto Nr / Order ID], 
 			Kd.Name AS [Kund namn], 
 			Kd.Personnr AS [Person nr], 
-			SUM(ODR.Antal * B.pris) AS [Summa Pris bok/böcker], 
-			SUM(ODR.Antal * B.Vikt) AS [Summa vikt bok/Böcker]
+			SUM(ODR.Antal * B.pris) AS [Summa Pris bok/bÃ¶cker], 
+			SUM(ODR.Antal * B.Vikt) AS [Summa vikt bok/BÃ¶cker]
 			FROM      
-			dbo.Böcker AS B INNER JOIN
+			dbo.BÃ¶cker AS B INNER JOIN
 			dbo.Order_rad AS ODR ON B.ISBN13 = ODR.ISBN13ID INNER JOIN
 			dbo.[Order] AS O ON O.ID = ODR.OrderID INNER JOIN
 			dbo.Kund AS Kd ON Kd.ID = O.KundID
@@ -43,31 +43,31 @@ FROM
 
 
 
-create view TitlarPerFörfattare 
+create view TitlarPerFÃ¶rfattare 
 as
 select 
-	Concat(F.Förnamn, ' ', F.Efternamn) as Name,
-	DATEDIFF(year, f.Födelsedatum, getdate()) as Ålder,
+	Concat(F.FÃ¶rnamn, ' ', F.Efternamn) as Name,
+	DATEDIFF(year, f.FÃ¶delsedatum, getdate()) as Ã…lder,
 	count(distinct B.ISBN13) as Titel,
-	sum(b.Pris * LS.lagersaldo) as Lagervärde
+	sum(b.Pris * LS.lagersaldo) as LagervÃ¤rde
 from
-		 Författare as F 
-	join Böcker as B		on B.FörfattareID = F.ID
+		 FÃ¶rfattare as F 
+	join BÃ¶cker as B		on B.FÃ¶rfattareID = F.ID
 	join LagerSaldo as LS	on B.ISBN13 =LS.ISBN13ID
 	join Butiker as BU		on BU.ID = LS.ButiksID
 
 Group by 
-	F.ID, F.förnamn, F.Efternamn, F.Födelsedatum
+	F.ID, F.fÃ¶rnamn, F.Efternamn, F.FÃ¶delsedatum
 
 
 	
 ------------ CHECK CONSTRAINS
 
-ALTER TABLE Böcker
+ALTER TABLE BÃ¶cker
 ADD CONSTRAINT PriceNotNegative
   CHECk (pris > 0);
 
-ALTER TABLE Böcker
+ALTER TABLE BÃ¶cker
 ADD CONSTRAINT ISBN1EqualTo13
   CHECk (Len(ISBN13) = 13 );
 
@@ -77,12 +77,12 @@ ALTER TABLE Kund
 ADD UNIQUE (Personnr);
 
 
--- för test
+-- fÃ¶r test
 
 select top 1 * from Butiker 
-select top 1 * from Författare
-select top 1 * from Förlag
-select top 1 * from Böcker
+select top 1 * from FÃ¶rfattare
+select top 1 * from FÃ¶rlag
+select top 1 * from BÃ¶cker
 select top 1 * from Kund
 select top 1 * from LagerSaldo
 select top 1 * from [Order]
@@ -92,11 +92,11 @@ select top 1 * from Order_rad
 -- fyll tabell Kund
 
 insert into Kund(Name, shipCity, Personnr)
-values('Rickard Wolf', 'Mölndal', '010101-1001')
+values('Rickard Wolf', 'MÃ¶lndal', '010101-1001')
 insert into Kund(Name, shipCity, Personnr)
-values('Måns Häggkvist', 'Göteborg', '010101-1002')
+values('MÃ¥ns HÃ¤ggkvist', 'GÃ¶teborg', '010101-1002')
 insert into Kund(Name, shipCity, Personnr)
-values('Sebastian Walker', 'Göteborg','010101-1003')
+values('Sebastian Walker', 'GÃ¶teborg','010101-1003')
 insert into Kund(Name, shipCity, Personnr)
 values('Johanna Scully', 'Stockholm', '010101-1004')
 insert into Kund(Name, shipCity, Personnr)
@@ -104,64 +104,64 @@ values('Fox Johansson', 'Deathstar', '010101-1005')
 
 select * from Kund
 
--- skapa författare  --select * from Författare
+-- skapa fÃ¶rfattare  --select * from FÃ¶rfattare
 
-insert into Författare (Förnamn, Efternamn, Födelsedatum)
+insert into FÃ¶rfattare (FÃ¶rnamn, Efternamn, FÃ¶delsedatum)
 values('Joshua', 'Bloch', '19700101');
-insert into Författare (Förnamn, Efternamn, Födelsedatum)
+insert into FÃ¶rfattare (FÃ¶rnamn, Efternamn, FÃ¶delsedatum)
 values('Harrison ', 'Ferrone', '19621115');
-insert into Författare (Förnamn, Efternamn, Födelsedatum)
+insert into FÃ¶rfattare (FÃ¶rnamn, Efternamn, FÃ¶delsedatum)
 values('Robert ', 'Martin', '19821023');
-insert into Författare (Förnamn, Efternamn, Födelsedatum)
+insert into FÃ¶rfattare (FÃ¶rnamn, Efternamn, FÃ¶delsedatum)
 values('Chinmoy ', 'Mirray', '19920103');
 
--- skapa förlag
+-- skapa fÃ¶rlag
 
-insert into [Förlag] (Förlagnamn, adressort)
+insert into [FÃ¶rlag] (FÃ¶rlagnamn, adressort)
 values ('Pocket Brooks', 'London')
-insert into [Förlag] (Förlagnamn, adressort)
-values ('Villiams Förlag', 'Göteborg')
-insert into [Förlag] (Förlagnamn, adressort)
+insert into [FÃ¶rlag] (FÃ¶rlagnamn, adressort)
+values ('Villiams FÃ¶rlag', 'GÃ¶teborg')
+insert into [FÃ¶rlag] (FÃ¶rlagnamn, adressort)
 values ('PPprograming', 'New York')
-insert into [Förlag] (Förlagnamn, adressort)
+insert into [FÃ¶rlag] (FÃ¶rlagnamn, adressort)
 values ('Sage Inc', 'Odessa')
-insert into [Förlag] (Förlagnamn, adressort)
-values ('Looobster Boo-k', 'Linköping')
+insert into [FÃ¶rlag] (FÃ¶rlagnamn, adressort)
+values ('Looobster Boo-k', 'LinkÃ¶ping')
 
 -- skapa butiker  -- select * from Butiker
 
 insert into Butiker (butiksNamn, Adress, stad)
-values('NerdHell inc', 'Landsvägsgatan 24', 'Göteborg')
+values('NerdHell inc', 'LandsvÃ¤gsgatan 24', 'GÃ¶teborg')
 insert into Butiker (butiksNamn, Adress, stad)
 values('Programmer Heaven books', 'Rosenbad 2', 'Stockholm')
 insert into Butiker (butiksNamn, Adress, stad)
-values('Lur Bookstore', 'hagagatan 3', 'Malmö')
+values('Lur Bookstore', 'hagagatan 3', 'MalmÃ¶')
 
 
--- skapa böcker  -- select * from Böcker
+-- skapa bÃ¶cker  -- select * from BÃ¶cker
 
-insert into Böcker (ISBN13, Titel, Språk, Pris, Utgivningsdatum, FörfattareID, FörlagsID, Vikt)
+insert into BÃ¶cker (ISBN13, Titel, SprÃ¥k, Pris, Utgivningsdatum, FÃ¶rfattareID, FÃ¶rlagsID, Vikt)
 values(9780321356680, 'Slow Java', 'Engelska ', 93 , '2017-12-27',21 , 21, 90)
-insert into Böcker (ISBN13, Titel, Språk, Pris, Utgivningsdatum, FörfattareID, FörlagsID, Vikt)
+insert into BÃ¶cker (ISBN13, Titel, SprÃ¥k, Pris, Utgivningsdatum, FÃ¶rfattareID, FÃ¶rlagsID, Vikt)
 values(9781129707755, 'Effective Java', 'Engelska ', 418 , '2013-10-26', 21, 21 , 400)
-insert into Böcker (ISBN13, Titel, Språk, Pris, Utgivningsdatum, FörfattareID, FörlagsID, Vikt)
+insert into BÃ¶cker (ISBN13, Titel, SprÃ¥k, Pris, Utgivningsdatum, FÃ¶rfattareID, FÃ¶rlagsID, Vikt)
 values(9782129701388, 'Java or nothing', 'Engelska ', 416 , '2011-11-21', 21, 22, 300)
 
-insert into Böcker (ISBN13, Titel, Språk, Pris, Utgivningsdatum, FörfattareID, FörlagsID, Vikt)
+insert into BÃ¶cker (ISBN13, Titel, SprÃ¥k, Pris, Utgivningsdatum, FÃ¶rfattareID, FÃ¶rlagsID, Vikt)
 values(9785321356680 , 'Learning C#', 'Svenska ',143 , '2013-06-27', 22, 23, 133)
-insert into Böcker (ISBN13, Titel, Språk, Pris, Utgivningsdatum, FörfattareID, FörlagsID, Vikt)
+insert into BÃ¶cker (ISBN13, Titel, SprÃ¥k, Pris, Utgivningsdatum, FÃ¶rfattareID, FÃ¶rlagsID, Vikt)
 values(9786129707755, 'Games with Unity 2019', 'Engelska ', 756 , '2019-03-30', 22, 23, 560)
-insert into Böcker (ISBN13, Titel, Språk, Pris, Utgivningsdatum, FörfattareID, FörlagsID, Vikt)
+insert into BÃ¶cker (ISBN13, Titel, SprÃ¥k, Pris, Utgivningsdatum, FÃ¶rfattareID, FÃ¶rlagsID, Vikt)
 values(9787129701318, 'C# by Developing', 'Engelska ', 316 , '2007-11-21', 22, 24, 333)
 
-insert into Böcker (ISBN13, Titel, Språk, Pris, Utgivningsdatum, FörfattareID, FörlagsID, Vikt)
+insert into BÃ¶cker (ISBN13, Titel, SprÃ¥k, Pris, Utgivningsdatum, FÃ¶rfattareID, FÃ¶rlagsID, Vikt)
 values(9788129707725, 'Clean Code', 'Engelska ', 556 , '2019-01-20',23, 24, 444)
-insert into Böcker (ISBN13, Titel, Språk, Pris, Utgivningsdatum, FörfattareID, FörlagsID, Vikt)
+insert into BÃ¶cker (ISBN13, Titel, SprÃ¥k, Pris, Utgivningsdatum, FÃ¶rfattareID, FÃ¶rlagsID, Vikt)
 values(9789119701328, 'Agile Software Craftsmanship', 'Engelska ', 536 , '2017-11-12', 24, 25, 124)
 
-insert into Böcker (ISBN13, Titel, Språk, Pris, Utgivningsdatum, FörfattareID, FörlagsID, Vikt)
+insert into BÃ¶cker (ISBN13, Titel, SprÃ¥k, Pris, Utgivningsdatum, FÃ¶rfattareID, FÃ¶rlagsID, Vikt)
 values(9789129707745, 'Cracking the Coding Interview', 'Engelska ', 123 , '2012-05-20', 22, 25, 2333)
-insert into Böcker (ISBN13, Titel, Språk, Pris, Utgivningsdatum, FörfattareID, FörlagsID, Vikt)
+insert into BÃ¶cker (ISBN13, Titel, SprÃ¥k, Pris, Utgivningsdatum, FÃ¶rfattareID, FÃ¶rlagsID, Vikt)
 values(9789129701368, 'Programming Questions and Solutions', 'Engelska ', 1435 , '2011-11-19',24, 23, 441)
 
 -- skapa ordrar	-- select * from [order]
@@ -169,32 +169,32 @@ select * from Kund
 select * from butiker
 
 
-insert into [Order] (ID, KundID, ButikID, DatumVidKöp)
+insert into [Order] (ID, KundID, ButikID, DatumVidKÃ¶p)
 values(50, 21, 14, CONVERT(VARCHAR(8),GETDATE()))
-insert into [Order] (ID, KundID, ButikID, DatumVidKöp)
+insert into [Order] (ID, KundID, ButikID, DatumVidKÃ¶p)
 values(51, 31, 14, CONVERT(VARCHAR(8),GETDATE()))
-insert into [Order] (ID, KundID, ButikID, DatumVidKöp)
+insert into [Order] (ID, KundID, ButikID, DatumVidKÃ¶p)
 values(32, 32, 15, CONVERT(VARCHAR(8),GETDATE()))
-insert into [Order] (ID, KundID, ButikID, DatumVidKöp)
+insert into [Order] (ID, KundID, ButikID, DatumVidKÃ¶p)
 values(33,33, 15, CONVERT(VARCHAR(8),GETDATE()))
-insert into [Order] (ID, KundID, ButikID, DatumVidKöp)
+insert into [Order] (ID, KundID, ButikID, DatumVidKÃ¶p)
 values(34, 34, 16, CONVERT(VARCHAR(8),GETDATE()))
-insert into [Order] (ID, KundID, ButikID, DatumVidKöp)
+insert into [Order] (ID, KundID, ButikID, DatumVidKÃ¶p)
 values(35, 35, 16, CONVERT(VARCHAR(8),GETDATE()))
 
 -- skapa order_rad (tidigare kundvagn)			select * from Order_rad
 insert into Order_rad(ISBN13ID, Antal, PrisVidOrder, [OrderID])
-values(9788129707725, 6, (select pris from Böcker where ISBN13 = 9788129707725), 32)
+values(9788129707725, 6, (select pris from BÃ¶cker where ISBN13 = 9788129707725), 32)
 insert into Order_rad(ISBN13ID, Antal, PrisVidOrder, [OrderID])
-values(9789129701368, 3,(select pris from Böcker where ISBN13 = 9789129701368),32)
+values(9789129701368, 3,(select pris from BÃ¶cker where ISBN13 = 9789129701368),32)
 insert into Order_rad(ISBN13ID, Antal, PrisVidOrder, [OrderID])
-values(9788129707725, 6,(select pris from Böcker where ISBN13 = 9788129707725),33)
+values(9788129707725, 6,(select pris from BÃ¶cker where ISBN13 = 9788129707725),33)
 insert into Order_rad(ISBN13ID, Antal, PrisVidOrder, [OrderID])
-values(9789129701368, 1,(select pris from Böcker where ISBN13 = 9789129701368),34)
+values(9789129701368, 1,(select pris from BÃ¶cker where ISBN13 = 9789129701368),34)
 insert into Order_rad(ISBN13ID, Antal, PrisVidOrder, [OrderID])
-values(9788129707725, 1,(select pris from Böcker where ISBN13 = 9788129707725),35)
+values(9788129707725, 1,(select pris from BÃ¶cker where ISBN13 = 9788129707725),35)
 insert into Order_rad(ISBN13ID, Antal, PrisVidOrder, [OrderID])
-values(9789119701328, 2,(select pris from Böcker where ISBN13 = 9789119701328),36)
+values(9789119701328, 2,(select pris from BÃ¶cker where ISBN13 = 9789119701328),36)
 
 
 
